@@ -21,7 +21,7 @@
           overlays = [ gomod2nix.overlays.default ];
         };
         
-        pkg = pkgs.buildGoModule {
+        pkg = pkgs.buildGoApplication {
           pname = "icali-tui";
           version = "0.1.0";
           src = ./.;
