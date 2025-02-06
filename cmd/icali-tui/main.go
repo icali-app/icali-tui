@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	fmt.Println("Starting app")
 	app := app.Model{}
 	if _, err := tea.NewProgram(app).Run(); err != nil {
 		fmt.Println("Error running program:", err)
