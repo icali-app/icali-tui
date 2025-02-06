@@ -1,6 +1,6 @@
 module github.com/icali-app/icali-tui
 
-go 1.23.4
+go 1.22.12
 
 require github.com/charmbracelet/bubbletea v1.3.0
 
@@ -18,7 +18,7 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.3.8 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 )
