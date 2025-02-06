@@ -25,8 +25,7 @@
           pname = "icali-tui";
           version = "0.1.0";
           src = ./.;
-          
-          vendorSha256 = null; # Will be filled by gomod2nix
+          module = ./gomod2nix.toml;
         };
       in {
         packages.default = pkg;
