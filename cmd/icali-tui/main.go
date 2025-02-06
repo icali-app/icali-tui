@@ -1,4 +1,4 @@
-package icalitui
+package main
 
 import "fmt"
 
