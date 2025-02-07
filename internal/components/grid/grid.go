@@ -72,23 +72,34 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				g.moveLeft()
 			case "right", "l":
 				g.moveRight()
+			case "i":
+				g.mode = InsertMode
 			}
 		}
 	case InsertMode:
-		var cmds []tea.Cmd
-		for i, row := range g.cells {
-			for j, cell := range row {
-				updated, cmd := cell.Update(msg)
-				g.cells[i][j] = updated.(*CellComponent)
-				if cmd != nil {
-					cmds = append(cmds, cmd)
-				}
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "esc":
+				g.mode = GlobalMode
+			default:
+				cell := g.currentCell()
+				return cell.Update(msg)
 			}
 		}
-		return g, tea.Batch(cmds...)
 	default:
-		panic("mode not handled")
 	}
+		// var cmds []tea.Cmd
+		// for i, row := range g.cells {
+		// 	for j, cell := range row {
+		// 		updated, cmd := cell.Update(msg)
+		// 		g.cells[i][j] = updated.(*CellComponent)
+		// 		if cmd != nil {
+		// 			cmds = append(cmds, cmd)
+		// 		}
+		// 	}
+		// }
+		// return g, tea.Batch(cmds...)
 
 	return g, nil
 }
@@ -154,4 +165,15 @@ func (g *GridComponent) cellCount() int {
 
 func (g *GridComponent) isCursorAt(ridx, cidx int) bool {
 	return g.cursor == ridx * g.cols + cidx
+}
+
+func (g *GridComponent) currentPos() (int, int) {
+	cidx := g.cursor % g.cols
+	ridx := g.cursor / g.cols
+	return ridx, cidx
+}
+
+func (g *GridComponent) currentCell() *CellComponent {
+	ridx, cidx := g.currentPos()	
+	return g.cells[ridx][cidx]
 }

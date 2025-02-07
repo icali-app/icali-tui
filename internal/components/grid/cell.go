@@ -26,6 +26,7 @@ func (c *CellComponent) Init() tea.Cmd {
 // Update implements the tea.Model interface.
 // Currently, it just returns the component unmodified.
 func (c *CellComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	c.content += "a"
 	return c, nil
 }
 
