@@ -22,7 +22,7 @@ type GridComponent struct {
 	// Therefore, the cursor position = i * rows + col
 	// Why? Because this allows for easy restructoring of the grid if needed (e.g. remove a column and add rows)
 	cursor int
-	cells  [][]*CellComponent
+	cells  [][]*CellComponent // Todo flatten this array too
 	mode   GridMode
 }
 
@@ -84,10 +84,10 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				g.mode = GlobalMode
 			default:
 				cell := g.currentCell()
-				return cell.Update(msg)
+				_, cmd := cell.Update(msg)
+				return g, cmd
 			}
 		}
-	default:
 	}
 		// var cmds []tea.Cmd
 		// for i, row := range g.cells {
