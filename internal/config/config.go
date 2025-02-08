@@ -22,6 +22,7 @@ type Config struct {
 }
 
 type WebDAVConfig struct {
+	URL        string `koanf:"url"`
 	RemotePath string `koanf:"remote_path"`
 	Username   string `koanf:"username"`
 	Password   string `koanf:"password"`
@@ -51,9 +52,16 @@ var (
 
 func Get() Config {
 	once.Do(func() {
+		// Load the default configuration
+		conf := defaultConfig()
+		err := k.Load(structs.Provider(conf, ""), nil)
+		if err != nil {
+			panic(err)
+		}
+
 		filePath, err := configFilePath()
 		if err != nil {
-			filePath = createDefaultConfigFile()
+			filePath = saveCurrentConfig()
 		}
 
 		// Load the configuration file
@@ -81,14 +89,8 @@ func Get() Config {
 	return config
 }
 
-func createDefaultConfigFile() string {
+func saveCurrentConfig() string {
 	path, err := xdg.ConfigFile(xdgDir + "/" + configFileName)
-	if err != nil {
-		panic(err)
-	}
-
-	conf := defaultConfig()
-	err = k.Load(structs.Provider(conf, ""), nil)
 	if err != nil {
 		panic(err)
 	}
@@ -96,12 +98,12 @@ func createDefaultConfigFile() string {
 	// Marshal the default configuration into TOML format
 	marshal, err := k.Marshal(toml.Parser())
 	if err != nil {
-		panic(fmt.Errorf("failed to marshal default configuration: %w", err))
+		panic(fmt.Errorf("failed to marshall configuration: %w", err))
 	}
 
 	// Write the configuration data to the specified file
 	if err := os.WriteFile(path, marshal, 0700); err != nil {
-		panic(fmt.Errorf("failed to write default configuration file: %w", err))
+		panic(fmt.Errorf("failed to write configuration file: %w", err))
 	}
 
 	return path
