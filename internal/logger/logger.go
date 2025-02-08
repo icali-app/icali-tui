@@ -2,9 +2,10 @@ package logger
 
 import (
 	"context"
+	appConf "github.com/icali-app/icali-tui/internal/config"
 	"os"
+	"path/filepath"
 	"runtime/debug"
-	"strconv"
 	"sync"
 	"time"
 
@@ -21,17 +22,6 @@ func Get() zerolog.Logger {
 		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 		zerolog.TimeFieldFormat = time.RFC3339Nano
 
-		logLevelInt, err := strconv.Atoi(os.Getenv("LOG_LEVEL"))
-		
-		logLevel := int8(logLevelInt)
-		if int(logLevel) != logLevelInt {
-			logLevel = int8(zerolog.InfoLevel)
-		}
-
-		if err != nil {
-			logLevel = int8(zerolog.DebugLevel) // default to DEBUG
-		}
-
 		var gitRevision string
 
 		buildInfo, ok := debug.ReadBuildInfo()
@@ -44,9 +34,25 @@ func Get() zerolog.Logger {
 			}
 		}
 
+		conf := appConf.Get()
+
+		loglevel, err := zerolog.ParseLevel(conf.Logging.LogLevel)
+		if err != nil {
+			loglevel = zerolog.DebugLevel // default to debug
+		}
+
+		err = os.MkdirAll(conf.Logging.LogDir, 0744)
+		if err != nil {
+			return
+		}
+
+		logFilePath := filepath.Join(
+			conf.Logging.LogDir,
+			"icali-tui.log.json")
+
 		logfile, err := os.OpenFile(
-			"icali-tui.log",
-			os.O_APPEND | os.O_CREATE | os.O_WRONLY,
+			logFilePath,
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 			0664,
 		)
 
@@ -55,7 +61,7 @@ func Get() zerolog.Logger {
 		}
 
 		log = zerolog.New(logfile).
-			Level(zerolog.Level(logLevel)).
+			Level(loglevel).
 			With().
 			Timestamp().
 			Str("git_revision", gitRevision).
@@ -72,4 +78,3 @@ func Get() zerolog.Logger {
 func GetCtx(ctx context.Context) *zerolog.Logger {
 	return zerolog.Ctx(ctx)
 }
-
