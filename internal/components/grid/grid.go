@@ -89,17 +89,17 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-		// var cmds []tea.Cmd
-		// for i, row := range g.cells {
-		// 	for j, cell := range row {
-		// 		updated, cmd := cell.Update(msg)
-		// 		g.cells[i][j] = updated.(*CellComponent)
-		// 		if cmd != nil {
-		// 			cmds = append(cmds, cmd)
-		// 		}
-		// 	}
-		// }
-		// return g, tea.Batch(cmds...)
+	// var cmds []tea.Cmd
+	// for i, row := range g.cells {
+	// 	for j, cell := range row {
+	// 		updated, cmd := cell.Update(msg)
+	// 		g.cells[i][j] = updated.(*CellComponent)
+	// 		if cmd != nil {
+	// 			cmds = append(cmds, cmd)
+	// 		}
+	// 	}
+	// }
+	// return g, tea.Batch(cmds...)
 
 	return g, nil
 }
@@ -111,7 +111,7 @@ func (g *GridComponent) View() string {
 		var cellViews []string
 		for cidx, cell := range row {
 			content := cell.View()
-			
+
 			var style lipgloss.Style
 			if g.isCursorAt(ridx, cidx) {
 				style = lipgloss.NewStyle().
@@ -164,7 +164,7 @@ func (g *GridComponent) cellCount() int {
 }
 
 func (g *GridComponent) isCursorAt(ridx, cidx int) bool {
-	return g.cursor == ridx * g.cols + cidx
+	return g.cursor == ridx*g.cols+cidx
 }
 
 func (g *GridComponent) currentPos() (int, int) {
@@ -174,6 +174,6 @@ func (g *GridComponent) currentPos() (int, int) {
 }
 
 func (g *GridComponent) currentCell() *CellComponent {
-	ridx, cidx := g.currentPos()	
+	ridx, cidx := g.currentPos()
 	return g.cells[ridx][cidx]
 }
