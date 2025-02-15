@@ -1,8 +1,9 @@
 package grid
 
 import (
-	"fmt"
+	"time"
 
+	ics "github.com/arran4/golang-ical"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -21,7 +22,7 @@ type GridComponent struct {
 	rows   int
 	cols   int
 	cursor int
-	cells  []*CellComponent
+	cells  []tea.Model
 	mode   GridMode
 }
 
@@ -30,14 +31,36 @@ func NewGridComponent(rows, cols int) *GridComponent {
 	grid := &GridComponent{
 		rows:  rows,
 		cols:  cols,
-		cells: make([]*CellComponent, rows*cols),
+		cells: make([]tea.Model, rows*cols),
 	}
 
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
+	for row := 0; row < rows; row++ {
+		for col := 0; col < cols; col++ {
 			// For demonstration, each cell shows its coordinate.
-			content := fmt.Sprintf("(%d,%d)", i, j)
-			grid.cells[i*cols+j] = NewCellComponent(content)
+			info := DayOfMonthCellInfo{
+				Day:      time.Now(),
+				Calendar: ics.NewCalendar(),
+			}
+			grid.cells[row*cols+col] = NewDayOfMonthCell(info)
+		}
+	}
+
+	return grid
+}
+
+type CellFunc = func(row, col, cursor int) tea.Model 
+
+func NewGridComponentWithCellFunc(rows, cols int, cellFunc CellFunc) *GridComponent {
+	grid := &GridComponent{
+		rows:  rows,
+		cols:  cols,
+		cells: make([]tea.Model, rows*cols),
+	}
+
+	for row := 0; row < rows; row++ {
+		for col := 0; col < cols; col++ {
+			// For demonstration, each cell shows its coordinate.
+			grid.cells[row*cols+col] = cellFunc(row, col, row*cols+col)
 		}
 	}
 
@@ -113,12 +136,10 @@ func (g *GridComponent) View() string {
 			if g.isCursorAt(row, col) {
 				style = lipgloss.NewStyle().
 					Border(lipgloss.ThickBorder()).
-					BorderForeground(lipgloss.Color("#FF0000")).
-					Padding(3)
+					BorderForeground(lipgloss.Color("#FF0000"))
 			} else {
 				style = lipgloss.NewStyle().
-					Border(lipgloss.NormalBorder()).
-					Padding(3)
+					Border(lipgloss.NormalBorder())
 			}
 
 			cellViews = append(cellViews, style.Render(content))
@@ -170,11 +191,11 @@ func (g *GridComponent) currentPos() (int, int) {
 	return row, col
 }
 
-func (g *GridComponent) currentCell() *CellComponent {
+func (g *GridComponent) currentCell() tea.Model {
 	row, col := g.currentPos()
 	return g.cellAt(row, col)
 }
 
-func (g *GridComponent) cellAt(row, col int) *CellComponent {
+func (g *GridComponent) cellAt(row, col int) tea.Model {
 	return g.cells[row*g.cols+col]
 }

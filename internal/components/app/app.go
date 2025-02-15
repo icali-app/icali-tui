@@ -2,7 +2,6 @@ package app
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/icali-app/icali-tui/internal/logger"
 )
 
 type Model struct {
@@ -14,9 +13,6 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	l := logger.Get()
-	l.Info().Msg("some important logging")
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
         switch msg.Type {

@@ -1,0 +1,15 @@
+
+[Encryption]
+  Enabled = true
+  Password = "do-not-use-this-omg-pls-dont"
+
+[Logging]
+  LogDir = "./logs"
+  LogLevel = "trace"
+
+[WebDAV]
+  Password = ""
+  RemotePath = ""
+  URL = ""
+  Username = ""
+

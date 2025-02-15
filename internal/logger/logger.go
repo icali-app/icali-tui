@@ -43,7 +43,7 @@ func Get() zerolog.Logger {
 
 		err = os.MkdirAll(conf.Logging.LogDir, 0744)
 		if err != nil {
-			return
+			panic(err)
 		}
 
 		logFilePath := filepath.Join(
