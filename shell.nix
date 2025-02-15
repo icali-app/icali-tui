@@ -19,7 +19,6 @@ in
 pkgs.mkShell {
   packages = [
     pkgs.go
-    pkgs.air
     goEnv
     gomod2nix
   ];
