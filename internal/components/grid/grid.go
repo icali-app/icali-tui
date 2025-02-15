@@ -16,13 +16,12 @@ const (
 
 // GridComponent represents a grid of CellComponents.
 type GridComponent struct {
-	rows int
-	cols int
-	// The cursor is 1-D although a grid is 2-D
-	// Therefore, the cursor position = i * rows + col
-	// Why? Because this allows for easy restructoring of the grid if needed (e.g. remove a column and add rows)
+	// The position of the curor is equal to some row,col with cursor = row * cols + col
+	// Where row is in [0, rows) and col is in [0, cols)
+	rows   int
+	cols   int
 	cursor int
-	cells  [][]*CellComponent // Todo flatten this array too
+	cells  []*CellComponent
 	mode   GridMode
 }
 
@@ -31,15 +30,14 @@ func NewGridComponent(rows, cols int) *GridComponent {
 	grid := &GridComponent{
 		rows:  rows,
 		cols:  cols,
-		cells: make([][]*CellComponent, rows),
+		cells: make([]*CellComponent, rows*cols),
 	}
 
 	for i := 0; i < rows; i++ {
-		grid.cells[i] = make([]*CellComponent, cols)
 		for j := 0; j < cols; j++ {
 			// For demonstration, each cell shows its coordinate.
 			content := fmt.Sprintf("(%d,%d)", i, j)
-			grid.cells[i][j] = NewCellComponent(content)
+			grid.cells[i*cols+j] = NewCellComponent(content)
 		}
 	}
 
@@ -49,10 +47,8 @@ func NewGridComponent(rows, cols int) *GridComponent {
 // Init initializes all cell components within the grid.
 func (g *GridComponent) Init() tea.Cmd {
 	var cmds []tea.Cmd
-	for _, row := range g.cells {
-		for _, cell := range row {
-			cmds = append(cmds, cell.Init())
-		}
+	for _, cell := range g.cells {
+		cmds = append(cmds, cell.Init())
 	}
 	return tea.Batch(cmds...)
 }
@@ -107,13 +103,14 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View renders the grid by joining the cells using lipgloss.
 func (g *GridComponent) View() string {
 	var rows []string
-	for ridx, row := range g.cells {
+	for row := 0; row < g.rows; row++ {
 		var cellViews []string
-		for cidx, cell := range row {
+		for col := 0; col < g.cols; col++ {
+			cell := g.cellAt(row, col)
 			content := cell.View()
 
 			var style lipgloss.Style
-			if g.isCursorAt(ridx, cidx) {
+			if g.isCursorAt(row, col) {
 				style = lipgloss.NewStyle().
 					Border(lipgloss.ThickBorder()).
 					BorderForeground(lipgloss.Color("#FF0000")).
@@ -163,17 +160,21 @@ func (g *GridComponent) cellCount() int {
 	return g.rows * g.cols
 }
 
-func (g *GridComponent) isCursorAt(ridx, cidx int) bool {
-	return g.cursor == ridx*g.cols+cidx
+func (g *GridComponent) isCursorAt(row, col int) bool {
+	return g.cursor == row*g.cols+col
 }
 
 func (g *GridComponent) currentPos() (int, int) {
-	cidx := g.cursor % g.cols
-	ridx := g.cursor / g.cols
-	return ridx, cidx
+	col := g.cursor % g.cols
+	row := g.cursor / g.cols
+	return row, col
 }
 
 func (g *GridComponent) currentCell() *CellComponent {
-	ridx, cidx := g.currentPos()
-	return g.cells[ridx][cidx]
+	row, col := g.currentPos()
+	return g.cellAt(row, col)
+}
+
+func (g *GridComponent) cellAt(row, col int) *CellComponent {
+	return g.cells[row*g.cols+col]
 }
