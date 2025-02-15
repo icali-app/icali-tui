@@ -125,6 +125,18 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View renders the grid by joining the cells using lipgloss.
 func (g *GridComponent) View() string {
+	var(
+		normalStyle = lipgloss.NewStyle().
+			Border(lipgloss.NormalBorder())
+
+		selectedStyle = lipgloss.NewStyle().
+			Border(lipgloss.ThickBorder()).
+			BorderForeground(lipgloss.Color("#FF0000"))
+
+		outerStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder())
+	)
+
 	var rows []string
 	for row := 0; row < g.rows; row++ {
 		var cellViews []string
@@ -134,12 +146,24 @@ func (g *GridComponent) View() string {
 
 			var style lipgloss.Style
 			if g.isCursorAt(row, col) {
-				style = lipgloss.NewStyle().
-					Border(lipgloss.ThickBorder()).
-					BorderForeground(lipgloss.Color("#FF0000"))
+				style = selectedStyle
 			} else {
-				style = lipgloss.NewStyle().
-					Border(lipgloss.NormalBorder())
+				style = normalStyle
+			}
+
+			// Disable all border to selectively enable them
+			style = style.
+				BorderBottom(false).
+				BorderTop(false).
+				BorderLeft(false).
+				BorderRight(false)
+
+			if col != g.cols - 1 {
+				style = style.BorderRight(true)
+			}
+
+			if row != g.rows - 1 {
+				style = style.BorderBottom(true)
 			}
 
 			cellViews = append(cellViews, style.Render(content))
@@ -150,7 +174,7 @@ func (g *GridComponent) View() string {
 	}
 	// Join all rows vertically to form the grid.
 	gridView := lipgloss.JoinVertical(lipgloss.Left, rows...)
-	return gridView
+	return outerStyle.Render(gridView)
 }
 
 func (g *GridComponent) moveUp() {
