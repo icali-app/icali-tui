@@ -1,7 +1,7 @@
 package grid
 
 import (
-	"github.com/icali-app/icali-tui/internal/config"
+	"github.com/icali-app/icali-tui/internal/style"
 	"strings"
 	"time"
 
@@ -126,27 +126,9 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 var (
-	conf = config.Get()
-
-	paneStyle = lipgloss.NewStyle().
-			Background(lipgloss.Color(conf.Style.Background)).
-			BorderBackground(lipgloss.Color(conf.Style.Background))
+	styl = style.Get()
 
 	normalBorder = lipgloss.NormalBorder()
-
-	outerBorderStyle = lipgloss.NewStyle().
-				Inherit(paneStyle).
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(lipgloss.Color(conf.Style.Border))
-
-	unselectedCellStyle = lipgloss.NewStyle().
-				Inherit(paneStyle).
-				Foreground(lipgloss.Color(conf.Style.Text))
-
-	selectedCellStyle = lipgloss.NewStyle().
-				Inherit(unselectedCellStyle).
-				Foreground(lipgloss.Color(conf.Style.Selection)).
-				Bold(true)
 )
 
 // View renders the grid by joining the cells using lipgloss.
@@ -159,9 +141,9 @@ func (g *GridComponent) View() string {
 			content := cell.View()
 
 			if g.isCursorAt(row, col) {
-				content = selectedCellStyle.Render(content)
+				content = styl.WithSelectedText.Render(content)
 			} else {
-				content = unselectedCellStyle.Render(content)
+				content = styl.Base.Render(content)
 			}
 
 			if col != (g.cols - 1) {
@@ -171,7 +153,7 @@ func (g *GridComponent) View() string {
 				}
 
 				rightBorder := strings.Join(rightBorderArray, "\n")
-				rightBorder = paneStyle.Render(rightBorder)
+				rightBorder = styl.Base.Render(rightBorder)
 				content = lipgloss.JoinHorizontal(lipgloss.Top, content, rightBorder)
 			}
 
@@ -187,7 +169,7 @@ func (g *GridComponent) View() string {
 
 			content = lipgloss.JoinVertical(lipgloss.Left, content, bottomBorder)
 
-			cellViews = append(cellViews, content)
+			cellViews = append(cellViews, styl.Base.Render(content))
 		}
 		// Join all cells in a row horizontally.
 		rowStr := lipgloss.JoinHorizontal(lipgloss.Top, cellViews...)
@@ -195,7 +177,8 @@ func (g *GridComponent) View() string {
 	}
 	// Join all rows vertically to form the grid.
 	gridView := lipgloss.JoinVertical(lipgloss.Left, rows...)
-	return outerBorderStyle.Render(gridView)
+
+	return styl.WithBorder.Render(gridView)
 }
 
 func (g *GridComponent) moveUp() {

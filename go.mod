@@ -15,6 +15,7 @@ require (
 	github.com/knadh/koanf/v2 v2.1.2
 	github.com/rs/zerolog v1.33.0
 	github.com/studio-b12/gowebdav v0.10.0
+	golang.org/x/term v0.28.0
 )
 
 require (
