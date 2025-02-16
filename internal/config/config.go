@@ -19,6 +19,7 @@ type Config struct {
 	WebDAV     WebDAVConfig     `koanf:"webdav"`
 	Encryption EncryptionConfig `koanf:"encryption"`
 	Logging    LoggingConfig    `koanf:"logging"`
+	Style      StyleConfig      `koanf:style`
 }
 
 type WebDAVConfig struct {
@@ -36,6 +37,14 @@ type EncryptionConfig struct {
 type LoggingConfig struct {
 	LogDir   string `koanf:"logdir"`
 	LogLevel string `koanf:"loglevel"`
+}
+
+type StyleConfig struct {
+	Background string `koanf:background`
+	Surface    string `koanf:surface`
+	Text       string `koanf:text`
+	Border     string `koanf:border`
+	Selection  string `koanf:selection`
 }
 
 const (
@@ -128,6 +137,13 @@ func defaultConfig() Config {
 		Logging: LoggingConfig{
 			LogDir:   logDir,
 			LogLevel: "info",
+		},
+		Style: StyleConfig{
+			Background: "#1e1e2e",
+			Surface:    "#585b70",
+			Text:       "#cdd6f4",
+			Border:     "#cba6f7",
+			Selection:  "#9399b2",
 		},
 	}
 }

@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"github.com/icali-app/icali-tui/internal/config"
 	"strings"
 	"time"
 
@@ -124,18 +125,32 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return g, nil
 }
 
+var (
+	conf = config.Get()
+
+	paneStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color(conf.Style.Background)).
+			BorderBackground(lipgloss.Color(conf.Style.Background))
+
+	normalBorder = lipgloss.NormalBorder()
+
+	outerBorderStyle = lipgloss.NewStyle().
+				Inherit(paneStyle).
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color(conf.Style.Border))
+
+	unselectedCellStyle = lipgloss.NewStyle().
+				Inherit(paneStyle).
+				Foreground(lipgloss.Color(conf.Style.Text))
+
+	selectedCellStyle = lipgloss.NewStyle().
+				Inherit(unselectedCellStyle).
+				Foreground(lipgloss.Color(conf.Style.Selection)).
+				Bold(true)
+)
+
 // View renders the grid by joining the cells using lipgloss.
 func (g *GridComponent) View() string {
-	var (
-		normalBorder = lipgloss.NormalBorder()
-
-		outerBorderStyle = lipgloss.NewStyle().
-					Border(lipgloss.RoundedBorder())
-
-		selectedCellStyle = lipgloss.NewStyle().
-					Foreground(lipgloss.Color("#ff0000"))
-	)
-
 	var rows []string
 	for row := 0; row < g.rows; row++ {
 		var cellViews []string
@@ -145,16 +160,18 @@ func (g *GridComponent) View() string {
 
 			if g.isCursorAt(row, col) {
 				content = selectedCellStyle.Render(content)
+			} else {
+				content = unselectedCellStyle.Render(content)
 			}
-
-			rightBorderArray := make([]string, lipgloss.Height(content))
-			for i := range rightBorderArray {
-				rightBorderArray[i] = normalBorder.Right
-			}
-
-			rightBorder := strings.Join(rightBorderArray, "\n")
 
 			if col != (g.cols - 1) {
+				rightBorderArray := make([]string, lipgloss.Height(content))
+				for i := range rightBorderArray {
+					rightBorderArray[i] = normalBorder.Right
+				}
+
+				rightBorder := strings.Join(rightBorderArray, "\n")
+				rightBorder = paneStyle.Render(rightBorder)
 				content = lipgloss.JoinHorizontal(lipgloss.Top, content, rightBorder)
 			}
 
