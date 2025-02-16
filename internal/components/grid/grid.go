@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"strings"
 	"time"
 
 	ics "github.com/arran4/golang-ical"
@@ -48,7 +49,7 @@ func NewGridComponent(rows, cols int) *GridComponent {
 	return grid
 }
 
-type CellFunc = func(row, col, cursor int) tea.Model 
+type CellFunc = func(row, col, cursor int) tea.Model
 
 func NewGridComponentWithCellFunc(rows, cols int, cellFunc CellFunc) *GridComponent {
 	grid := &GridComponent{
@@ -125,16 +126,14 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View renders the grid by joining the cells using lipgloss.
 func (g *GridComponent) View() string {
-	var(
-		normalStyle = lipgloss.NewStyle().
-			Border(lipgloss.NormalBorder())
+	var (
+		normalBorder = lipgloss.NormalBorder()
 
-		selectedStyle = lipgloss.NewStyle().
-			Border(lipgloss.ThickBorder()).
-			BorderForeground(lipgloss.Color("#FF0000"))
+		outerBorderStyle = lipgloss.NewStyle().
+					Border(lipgloss.RoundedBorder())
 
-		outerStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder())
+		selectedCellStyle = lipgloss.NewStyle().
+					Foreground(lipgloss.Color("#ff0000"))
 	)
 
 	var rows []string
@@ -144,29 +143,34 @@ func (g *GridComponent) View() string {
 			cell := g.cellAt(row, col)
 			content := cell.View()
 
-			var style lipgloss.Style
 			if g.isCursorAt(row, col) {
-				style = selectedStyle
-			} else {
-				style = normalStyle
+				content = selectedCellStyle.Render(content)
 			}
 
-			// Disable all border to selectively enable them
-			style = style.
-				BorderBottom(false).
-				BorderTop(false).
-				BorderLeft(false).
-				BorderRight(false)
-
-			if col != g.cols - 1 {
-				style = style.BorderRight(true)
+			rightBorderArray := make([]string, lipgloss.Height(content))
+			for i := range rightBorderArray {
+				rightBorderArray[i] = normalBorder.Right
 			}
 
-			if row != g.rows - 1 {
-				style = style.BorderBottom(true)
+			rightBorder := strings.Join(rightBorderArray, "\n")
+
+			if col != (g.cols - 1) {
+				content = lipgloss.JoinHorizontal(lipgloss.Top, content, rightBorder)
 			}
 
-			cellViews = append(cellViews, style.Render(content))
+			if row == (g.rows - 1) {
+				cellViews = append(cellViews, content)
+				continue
+			}
+
+			bottomBorder := strings.Repeat(normalBorder.Bottom, lipgloss.Width(content)-1)
+			if col != (g.cols - 1) {
+				bottomBorder = bottomBorder + normalBorder.Middle
+			}
+
+			content = lipgloss.JoinVertical(lipgloss.Left, content, bottomBorder)
+
+			cellViews = append(cellViews, content)
 		}
 		// Join all cells in a row horizontally.
 		rowStr := lipgloss.JoinHorizontal(lipgloss.Top, cellViews...)
@@ -174,7 +178,7 @@ func (g *GridComponent) View() string {
 	}
 	// Join all rows vertically to form the grid.
 	gridView := lipgloss.JoinVertical(lipgloss.Left, rows...)
-	return outerStyle.Render(gridView)
+	return outerBorderStyle.Render(gridView)
 }
 
 func (g *GridComponent) moveUp() {
