@@ -99,6 +99,10 @@ func isSameDay(t1, t2 time.Time) bool {
 	return y1 == y2 && m1 == m2 && d1 == d2
 }
 
+// TODO: maybe just make info public
+func (d *DayOfMonthCell) Info() DayOfMonthCellInfo {
+	return d.info
+}
+
 
 // LOGGING
-

@@ -10,7 +10,7 @@ type Model struct {
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return tea.Batch(m.Grid.Init(), m.Preview.Init())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -22,11 +22,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	var cmd tea.Cmd
-	m.Grid, cmd = m.Grid.Update(msg)
-
-	m.Preview, cmd = m.Preview.Update(msg)
-	return m, cmd
+	var cmdGrid, cmdPreview tea.Cmd
+	m.Grid, cmdGrid = m.Grid.Update(msg)
+	m.Preview, cmdPreview = m.Preview.Update(msg)
+	return m, tea.Batch(cmdGrid, cmdPreview)
 }
 
 func (m Model) View() string {

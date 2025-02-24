@@ -75,6 +75,8 @@ func (g *GridComponent) Init() tea.Cmd {
 	for _, cell := range g.cells {
 		cmds = append(cmds, cell.Init())
 	}
+
+	cmds = append(cmds, g.selectedCell)
 	return tea.Batch(cmds...)
 }
 
@@ -87,12 +89,16 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch msg.String() {
 			case "up", "k":
 				g.moveUp()
+				return g, g.selectedCell
 			case "down", "j":
 				g.moveDown()
+				return g, g.selectedCell
 			case "left", "h":
 				g.moveLeft()
+				return g, g.selectedCell
 			case "right", "l":
 				g.moveRight()
+				return g, g.selectedCell
 			case "i":
 				g.mode = InsertMode
 			}
@@ -110,17 +116,6 @@ func (g *GridComponent) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-	// var cmds []tea.Cmd
-	// for i, row := range g.cells {
-	// 	for j, cell := range row {
-	// 		updated, cmd := cell.Update(msg)
-	// 		g.cells[i][j] = updated.(*CellComponent)
-	// 		if cmd != nil {
-	// 			cmds = append(cmds, cmd)
-	// 		}
-	// 	}
-	// }
-	// return g, tea.Batch(cmds...)
 
 	return g, nil
 }
@@ -226,4 +221,12 @@ func (g *GridComponent) currentCell() tea.Model {
 
 func (g *GridComponent) cellAt(row, col int) tea.Model {
 	return g.cells[row*g.cols+col]
+}
+
+type SelectedCellMsg struct {
+	Cell tea.Model
+}
+
+func (g *GridComponent) selectedCell() tea.Msg {
+	return SelectedCellMsg{Cell: g.currentCell()}
 }
