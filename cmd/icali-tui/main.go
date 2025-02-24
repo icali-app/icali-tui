@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/icali-app/icali-tui/internal/components/app"
 	"github.com/icali-app/icali-tui/internal/components/grid"
+	"github.com/icali-app/icali-tui/internal/components/preview"
 	"github.com/icali-app/icali-tui/internal/config"
 )
 
@@ -54,8 +55,12 @@ func main() {
 	grid := grid.NewGridComponentWithCellFunc(3, 4, func(row, col, cursor int) tea.Model {
 		return createExampleCell(row, col, cursor)
 	})
+
+	pr := preview.NewPreview("sussy")
+
 	app := app.Model{
 		Grid: grid,
+		Preview: pr,
 	}
 	if _, err := tea.NewProgram(app, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)

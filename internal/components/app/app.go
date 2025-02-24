@@ -6,6 +6,7 @@ import (
 
 type Model struct {
 	Grid tea.Model
+	Preview tea.Model
 }
 
 func (m Model) Init() tea.Cmd {
@@ -23,9 +24,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var cmd tea.Cmd
 	m.Grid, cmd = m.Grid.Update(msg)
+
+	m.Preview, cmd = m.Preview.Update(msg)
 	return m, cmd
 }
 
 func (m Model) View() string {
-	return m.Grid.View()
+	return m.Grid.View() + "\n" + m.Preview.View()
 }
