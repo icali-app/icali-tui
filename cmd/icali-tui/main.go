@@ -32,13 +32,6 @@ func createExampleCell(row, col, cursor int) *grid.DayOfMonthCell {
 }
 
 func main() {
-	// p := os.Args[1]
-	// fmt.Println("Starting app")
-	// child, err := examplecomponent.NewFromCalPathStr(p)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	_ = config.Get()
 
 	p := os.Args[1]

@@ -6,6 +6,7 @@ import (
 	ics "github.com/arran4/golang-ical"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	icshelper "github.com/icali-app/icali-tui/internal/ics-helper"
 )
 
 // DayOfMonthCell represents a single cell in the grid.
@@ -53,7 +54,7 @@ func (c *DayOfMonthCell) View() string {
 		Height(height)
 
 	content += c.info.Day.Format(time.DateOnly)
-	e := c.findEventsForThisDay()
+	e := icshelper.FindEventsForDay(c.info.Calendar, c.info.Day)
 
 	summaryStyle := lipgloss.NewStyle().
 		Align(lipgloss.Right).
@@ -68,35 +69,6 @@ func (c *DayOfMonthCell) View() string {
 	}
 
 	return cellStyle.Render(content)
-}
-
-func (cell *DayOfMonthCell) findEventsForThisDay() []*ics.VEvent {
-	res := make([]*ics.VEvent, 0)
-
-	for _, event := range cell.info.Calendar.Events() {
-		start, err := event.GetStartAt()
-
-		if err == nil && isSameDay(cell.info.Day, start) {
-			res = append(res, event)
-			continue
-		}
-
-		// TODO: we will ignore everything else for now
-		// end, err := event.GetStartAt()
-		// if err == nil && isSameDay(cell.info.day, end) {
-		// 	res = append(res, event)
-		// 	continue
-		// }
-	}
-
-	return res
-}
-
-func isSameDay(t1, t2 time.Time) bool {
-	y1, m1, d1 := t1.Date()
-	y2, m2, d2 := t2.Date()
-
-	return y1 == y2 && m1 == m2 && d1 == d2
 }
 
 // TODO: maybe just make info public
