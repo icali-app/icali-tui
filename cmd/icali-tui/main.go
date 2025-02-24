@@ -57,7 +57,7 @@ func main() {
 	app := app.Model{
 		Grid: grid,
 	}
-	if _, err := tea.NewProgram(app).Run(); err != nil {
+	if _, err := tea.NewProgram(app, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
