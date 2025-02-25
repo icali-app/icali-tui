@@ -219,6 +219,10 @@ func (g *GridComponent) currentCell() tea.Model {
 	return g.cellAt(row, col)
 }
 
+func (g *GridComponent) setCurrentCell(cell tea.Model) {
+	g.cells[g.cursor] = cell
+}
+
 func (g *GridComponent) cellAt(row, col int) tea.Model {
 	return g.cells[row*g.cols+col]
 }

@@ -38,23 +38,26 @@ func main() {
 	p := os.Args[1]
 	file, err := os.Open(p)
 	if err != nil {
-		panic(err)
+		fmt.Println("Failed to open calendar:", err)
+		os.Exit(1)
 	}
 
 	calendar, err = ics.ParseCalendar(file)
 	if err != nil {
-		panic(err)
+		fmt.Println("Failed to parse calendar:", err)
+		os.Exit(1)
 	}
 
 	grid := grid.NewGridComponentWithCellFunc(3, 4, func(row, col, cursor int) tea.Model {
 		return createExampleCell(row, col, cursor)
 	})
 
-	pr := preview.NewPreview("sussy")
+	pr := preview.NewPreview()
 
 	app := app.Model{
 		Grid: grid,
 		Preview: pr,
+		EnablePreview: true,
 	}
 	if _, err := tea.NewProgram(app, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)

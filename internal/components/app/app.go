@@ -2,11 +2,14 @@ package app
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/icali-app/icali-tui/internal/style"
 )
 
 type Model struct {
 	Grid tea.Model
 	Preview tea.Model
+	EnablePreview bool
 }
 
 func (m Model) Init() tea.Cmd {
@@ -16,9 +19,11 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-        switch msg.Type {
-        case tea.KeyCtrlC:
+        switch msg.String() {
+        case "ctrl+c":
 			return m, tea.Quit
+		case "p":
+			m.EnablePreview = !m.EnablePreview
 		}
 	}
 
@@ -29,5 +34,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.Grid.View() + "\n" + m.Preview.View()
+	width, _ := style.TerminalSize()
+	centerGridView := lipgloss.PlaceHorizontal(width, lipgloss.Center, m.Grid.View())
+
+	centerPreviewView := lipgloss.PlaceHorizontal(width, lipgloss.Center, m.Preview.View())
+
+	if m.EnablePreview {
+		return lipgloss.JoinVertical(lipgloss.Top, centerGridView, centerPreviewView)
+	}
+	return centerGridView
 }

@@ -11,7 +11,7 @@ import (
 )
 
 // Do not question this function, please
-func SearchTISSRoom(icsName string) string {
+func SearchTISSRoom(icsName string) (string, error) {
     // Constants
     dswid := 6122
     dsrid := 236
@@ -19,7 +19,7 @@ func SearchTISSRoom(icsName string) string {
     // Create HTTP client with cookie jar
 	jar, err := cookiejar.New(nil)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
     client := &http.Client{
 		Jar: jar,
@@ -28,7 +28,7 @@ func SearchTISSRoom(icsName string) string {
     // Set initial cookies
     cookieURL, err := url.Parse("https://tiss.tuwien.ac.at")
 	if err != nil || cookieURL == nil {
-		panic(err)
+		return "", err
 	}
     cookie := &http.Cookie{
         Name: fmt.Sprintf("dsrwid-%d", dsrid),
@@ -42,7 +42,7 @@ func SearchTISSRoom(icsName string) string {
     firstURL := fmt.Sprintf("https://tiss.tuwien.ac.at/events/selectRoom.xhtml?dswid=%d&dsrid=%d", dswid, dsrid)
     resp, err := client.Get(firstURL)
     if err != nil {
-        panic(err)
+		return "", err
     }
     defer resp.Body.Close()
 
@@ -51,11 +51,11 @@ func SearchTISSRoom(icsName string) string {
     body := new(strings.Builder)
     _, err = io.Copy(body, resp.Body)
     if err != nil {
-        panic(err)
+		return "", err
     }
     viewStateMatch := viewStateRegex.FindStringSubmatch(body.String())
     if len(viewStateMatch) != 2 {
-        panic("ViewState not found")
+		return "", err
     }
     viewState := viewStateMatch[1]
     
@@ -83,7 +83,7 @@ func SearchTISSRoom(icsName string) string {
     postURL := fmt.Sprintf("https://tiss.tuwien.ac.at/events/selectRoom.xhtml?dswid=%d&dsrid=%d", dswid, dsrid)
     req, err := http.NewRequest("POST", postURL, strings.NewReader(form.Encode()))
     if err != nil {
-        panic(err)
+		return "", err
     }
     
     // Set headers
@@ -93,22 +93,22 @@ func SearchTISSRoom(icsName string) string {
     // Execute POST request
     resp, err = client.Do(req)
     if err != nil {
-        panic(err)
+		return "", err
     }
     defer resp.Body.Close()
     
     // Extract relative link
     bodyBytes, err := io.ReadAll(resp.Body)
     if err != nil {
-        panic(err)
+		return "", err
     }
     relLinkRegex := regexp.MustCompile(fmt.Sprintf(`<a href="(.*?)">(.*?)(%s)(.*?)</a>`, regexp.QuoteMeta(icsName)))
     relLinkMatch := relLinkRegex.FindStringSubmatch(string(bodyBytes))
     if len(relLinkMatch) != 5 {
-        panic("Relative link not found")
+		return "", err
     }
     relLink := relLinkMatch[1]
     
-	return fmt.Sprintf("https://tiss.tuwien.ac.at%s", relLink)
+	return fmt.Sprintf("https://tiss.tuwien.ac.at%s", relLink), nil
 }
 

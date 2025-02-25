@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"fmt"
 	"time"
 
 	ics "github.com/arran4/golang-ical"
@@ -40,6 +41,14 @@ func (c *DayOfMonthCell) Init() tea.Cmd {
 // Update implements the tea.Model interface.
 // Currently, it just returns the component unmodified.
 func (c *DayOfMonthCell) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "t":
+			c.createTodo()
+			return c, c.icsUpdated
+		}
+	}
 	return c, nil
 }
 
@@ -55,18 +64,30 @@ func (c *DayOfMonthCell) View() string {
 
 	content += c.info.Day.Format(time.DateOnly)
 	e := icshelper.FindEventsForDay(c.info.Calendar, c.info.Day)
+	t := icshelper.FindTodosForDay(c.info.Calendar, c.info.Day)
 
 	summaryStyle := lipgloss.NewStyle().
 		Align(lipgloss.Right).
 		Width(25).
 		Height(3)
 	
+	var summary string
 	if len(e) > 0 {
-		p := e[0].GetProperty(ics.ComponentPropertySummary)
-		content += lipgloss.Place(width, height, lipgloss.Right, lipgloss.Bottom, summaryStyle.Render(p.Value))
-	} else {
-		content += lipgloss.Place(width, height, lipgloss.Right, lipgloss.Bottom, summaryStyle.Render())
+		summary = fmt.Sprintf("Events: %d", len(e))
+	} 
+
+	if len(t) > 0 {
+		summary = lipgloss.JoinVertical(lipgloss.Top, summary, fmt.Sprintf("Todos: %d", len(t)))
 	}
+
+	content += lipgloss.Place(
+		width, 
+		height,
+		lipgloss.Right,
+		lipgloss.Bottom,
+		summaryStyle.Render(summary),
+	)
+
 
 	return cellStyle.Render(content)
 }
@@ -77,4 +98,18 @@ func (d *DayOfMonthCell) Info() DayOfMonthCellInfo {
 }
 
 
-// LOGGING
+func (c *DayOfMonthCell) createTodo() {
+	todo := c.info.Calendar.AddTodo(icshelper.NewId())
+	todo.SetStartAt(c.info.Day)
+	todo.SetEndAt(c.info.Day)
+	todo.SetSummary("new todo of the day")
+	todo.SetDescription("some important description")
+}
+
+type IcsUpdatedMsg struct {
+	Cell tea.Model
+}
+
+func (c *DayOfMonthCell) icsUpdated() tea.Msg {
+	return IcsUpdatedMsg{Cell: c}
+}
