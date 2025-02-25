@@ -19,7 +19,7 @@ type Config struct {
 	WebDAV     WebDAVConfig     `koanf:"webdav"`
 	Encryption EncryptionConfig `koanf:"encryption"`
 	Logging    LoggingConfig    `koanf:"logging"`
-	Style      StyleConfig      `koanf:style`
+	Style      StyleConfig      `koanf:"style"`
 }
 
 type WebDAVConfig struct {
@@ -40,11 +40,12 @@ type LoggingConfig struct {
 }
 
 type StyleConfig struct {
-	Background string `koanf:background`
-	Surface    string `koanf:surface`
-	Text       string `koanf:text`
-	Border     string `koanf:border`
-	Selection  string `koanf:selection`
+	Background string `koanf:"background"`
+	Surface    string `koanf:"surface"`
+	Text       string `koanf:"text"`
+	Border     string `koanf:"border"`
+	Selection  string `koanf:"selection"`
+	Link	   string `koanf:"link"`
 }
 
 const (
@@ -138,13 +139,18 @@ func defaultConfig() Config {
 			LogDir:   logDir,
 			LogLevel: "info",
 		},
-		Style: StyleConfig{
-			Background: "#1e1e2e",
-			Surface:    "#585b70",
-			Text:       "#cdd6f4",
-			Border:     "#cba6f7",
-			Selection:  "#9399b2",
-		},
+		Style: styleConfigFromCat(mocha),
+	}
+}
+
+func styleConfigFromCat(cat Catppuccin) StyleConfig {
+	return StyleConfig{
+		Background: cat.Base,
+		Surface:    cat.Surface2,
+		Text:       cat.Text,
+		Border:     cat.Mauve,
+		Selection:  cat.Overlay2,
+		Link:       cat.Red,
 	}
 }
 

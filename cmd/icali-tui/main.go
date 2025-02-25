@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+
 	"time"
 
 	ics "github.com/arran4/golang-ical"

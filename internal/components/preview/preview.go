@@ -2,6 +2,7 @@ package preview
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	ics "github.com/arran4/golang-ical"
@@ -10,6 +11,7 @@ import (
 	"github.com/icali-app/icali-tui/internal/components/grid"
 	icshelper "github.com/icali-app/icali-tui/internal/ics-helper"
 	"github.com/icali-app/icali-tui/internal/style"
+	"github.com/icali-app/icali-tui/internal/tiss"
 )
 
 var (
@@ -49,9 +51,21 @@ func formatDayOfMonthCell(cell grid.DayOfMonthCell) string {
 
 	var eventsStr string	
 	for _, e := range events {
-		p := e.GetProperty(ics.ComponentPropertySummary)
-		styledP := styl.WithBorder.Render(p.Value)
-		eventsStr = lipgloss.JoinHorizontal(lipgloss.Top, eventsStr, styledP)
+		summary := e.GetProperty(ics.ComponentPropertySummary).Value
+		summary = styl.WithSummary.Render(summary)
+
+		location := e.GetProperty(ics.ComponentPropertyLocation).Value
+		locationLink := locationLink(location, e)
+		locationText := fmt.Sprintf("Location (%s)", location)
+		locationFmt := formatHyperlink(locationLink, locationText)
+		location = styl.WithLink.Render(locationFmt)
+
+		description := e.GetProperty(ics.ComponentPropertyDescription).Value
+		description = styl.Base.Render(description)
+
+		styled := lipgloss.JoinVertical(lipgloss.Top, summary, location, description)
+		styled = styl.WithBorder.Render(styled)
+		eventsStr = lipgloss.JoinHorizontal(lipgloss.Top, eventsStr, styled)
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, date, eventsStr)
@@ -59,4 +73,24 @@ func formatDayOfMonthCell(cell grid.DayOfMonthCell) string {
 
 func (m PreviewComponent) View() string {
 	return styl.WithBorder.Render(m.content)
+}
+
+
+func formatHyperlink(link, text string) string {
+	return fmt.Sprintf("\x1B]8;;%s\x1B\\%s\x1B]8;;\x1B\\\n", link, text)
+}
+
+func locationLink(str string, reference *ics.VEvent) string {
+	if strings.HasPrefix(str, "http://") || strings.HasPrefix(str, "https://") {
+		return str
+	}
+
+	// TU Wien calendar check
+	uid := reference.GetProperty(ics.ComponentPropertyUniqueId).Value
+	if strings.HasSuffix(uid, "tuwien.ac.at") {
+		location := reference.GetProperty(ics.ComponentPropertyLocation).Value
+		return tiss.SearchTISSRoom(location)
+	}
+
+	return "http://example.com"
 }

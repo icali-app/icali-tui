@@ -18,6 +18,8 @@ type Style struct {
 	Base             lipgloss.Style
 	WithSelectedText lipgloss.Style
 	WithBorder       lipgloss.Style
+	WithLink         lipgloss.Style
+	WithSummary      lipgloss.Style
 }
 
 func Get() Style {
@@ -37,6 +39,14 @@ func Get() Style {
 				Border(lipgloss.RoundedBorder()).
 				BorderBackground(lipgloss.Color(conf.Style.Background)).
 				BorderForeground(lipgloss.Color(conf.Style.Border)),
+
+			WithLink: lipgloss.NewStyle().
+				Inherit(style.Base).
+				Foreground(lipgloss.Color(conf.Style.Link)),
+
+			WithSummary: lipgloss.NewStyle().
+				Inherit(style.Base).
+				Bold(true),
 		}
 	})
 
