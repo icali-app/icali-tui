@@ -30,3 +30,6 @@ result
 # log files
 *.log
 /logs
+
+# test ics files
+*.ics

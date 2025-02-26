@@ -39,13 +39,20 @@ type LoggingConfig struct {
 	LogLevel string `koanf:"loglevel"`
 }
 
-type StyleConfig struct {
+type styleBaseConfig struct {
 	Background string `koanf:"background"`
 	Surface    string `koanf:"surface"`
 	Text       string `koanf:"text"`
 	Border     string `koanf:"border"`
 	Selection  string `koanf:"selection"`
-	Link	   string `koanf:"link"`
+	Link       string `koanf:"link"`
+}
+
+type StyleConfig struct {
+	Success styleBaseConfig `koanf:"success"`
+	Error   styleBaseConfig `koanf:"error"`
+	Info    styleBaseConfig `koanf:"info"`
+	Normal  styleBaseConfig `koanf:"normal"`
 }
 
 const (
@@ -144,13 +151,48 @@ func defaultConfig() Config {
 }
 
 func styleConfigFromCat(cat Catppuccin) StyleConfig {
-	return StyleConfig{
+	normal := styleBaseConfig{
 		Background: cat.Base,
 		Surface:    cat.Surface2,
 		Text:       cat.Text,
 		Border:     cat.Mauve,
 		Selection:  cat.Overlay2,
 		Link:       cat.Red,
+	}
+
+	success := styleBaseConfig{
+		Background: cat.Base,
+		Surface:    cat.Surface2,
+		Text:       cat.Text,
+		Border:     cat.Green,
+		Selection:  cat.Overlay2,
+		Link:       cat.Red,
+	}
+
+	error := styleBaseConfig{
+		Background: cat.Base,
+		Surface:    cat.Surface2,
+		Text:       cat.Text,
+		Border:     cat.Red,
+		Selection:  cat.Overlay2,
+		Link:       cat.Red,
+	}
+
+	info := styleBaseConfig{
+		Background: cat.Base,
+		Surface:    cat.Surface2,
+		Text:       cat.Text,
+		Border:     cat.Sapphire,
+		Selection:  cat.Overlay2,
+		Link:       cat.Red,
+	}
+
+
+	return StyleConfig{
+		Normal: normal,
+		Error: error,
+		Info: info,
+		Success: success,
 	}
 }
 

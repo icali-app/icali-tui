@@ -26,23 +26,23 @@ func Get() Style {
 	once.Do(func() {
 		style = Style{
 			Base: lipgloss.NewStyle().
-				Background(lipgloss.Color(conf.Style.Background)).
-				Foreground(lipgloss.Color(conf.Style.Text)),
+				Background(lipgloss.Color(conf.Style.Normal.Background)).
+				Foreground(lipgloss.Color(conf.Style.Normal.Text)),
 
 			WithSelectedText: lipgloss.NewStyle().
 				Inherit(style.Base).
-				Foreground(lipgloss.Color(conf.Style.Selection)).
+				Foreground(lipgloss.Color(conf.Style.Normal.Selection)).
 				Bold(true),
 
 			WithBorder: lipgloss.NewStyle().
 				Inherit(style.Base).
 				Border(lipgloss.RoundedBorder()).
-				BorderBackground(lipgloss.Color(conf.Style.Background)).
-				BorderForeground(lipgloss.Color(conf.Style.Border)),
+				BorderBackground(lipgloss.Color(conf.Style.Normal.Background)).
+				BorderForeground(lipgloss.Color(conf.Style.Normal.Border)),
 
 			WithLink: lipgloss.NewStyle().
 				Inherit(style.Base).
-				Foreground(lipgloss.Color(conf.Style.Link)),
+				Foreground(lipgloss.Color(conf.Style.Normal.Link)),
 
 			WithSummary: lipgloss.NewStyle().
 				Inherit(style.Base).

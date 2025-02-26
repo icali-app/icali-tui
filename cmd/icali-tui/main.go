@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 
 	"time"
@@ -11,6 +13,7 @@ import (
 	"github.com/icali-app/icali-tui/internal/components/app"
 	"github.com/icali-app/icali-tui/internal/components/grid"
 	"github.com/icali-app/icali-tui/internal/components/preview"
+	"github.com/icali-app/icali-tui/internal/components/toast"
 	"github.com/icali-app/icali-tui/internal/config"
 )
 
@@ -32,17 +35,38 @@ func createExampleCell(row, col, cursor int) *grid.DayOfMonthCell {
 	return grid.NewDayOfMonthCell(info)
 }
 
+
+type TestStorage struct {
+	path string
+}
+
+func (s *TestStorage) Upload(data []byte) error {
+	return os.WriteFile(s.path, data, 0644)
+}
+
+func (s *TestStorage) Download() ([]byte, error) {
+	file, err := os.Open(s.path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	return io.ReadAll(file)
+}
+
+
 func main() {
 	_ = config.Get()
 
 	p := os.Args[1]
-	file, err := os.Open(p)
+	s := TestStorage{path: p}
+	data, err := s.Download()
 	if err != nil {
 		fmt.Println("Failed to open calendar:", err)
 		os.Exit(1)
 	}
 
-	calendar, err = ics.ParseCalendar(file)
+	calendar, err = ics.ParseCalendar(bytes.NewReader(data))
 	if err != nil {
 		fmt.Println("Failed to parse calendar:", err)
 		os.Exit(1)
@@ -58,8 +82,12 @@ func main() {
 		Grid: grid,
 		Preview: pr,
 		EnablePreview: true,
+		Storage: &s,
 	}
-	if _, err := tea.NewProgram(app, tea.WithAltScreen()).Run(); err != nil {
+
+	appWithToast := toast.WithToast(app)
+
+	if _, err := tea.NewProgram(appWithToast, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}

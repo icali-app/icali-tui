@@ -106,10 +106,14 @@ func (c *DayOfMonthCell) createTodo() {
 	todo.SetDescription("some important description")
 }
 
+// TODO: This should really be two separate message
+// 		 One IcsUpdatedMsg and another CellUpdatedMsg
+//		 Since a cell very well might update without changing the ics and vice versa
 type IcsUpdatedMsg struct {
 	Cell tea.Model
+	Calendar *ics.Calendar
 }
 
 func (c *DayOfMonthCell) icsUpdated() tea.Msg {
-	return IcsUpdatedMsg{Cell: c}
+	return IcsUpdatedMsg{Cell: c, Calendar: c.info.Calendar}
 }
