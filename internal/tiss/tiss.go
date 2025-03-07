@@ -32,11 +32,11 @@ type room struct {
 	tissLink          string
 }
 
+const csvComma = ';'
+
 //go:embed rooms.csv
 var roomsContent string
 var rooms []room = parseRooms(roomsContent)
-
-var RoomNotFound = errors.New("tiss room not found")
 
 type RoomNotFoundError struct {
 	Inner error
@@ -175,7 +175,7 @@ func searchTISSRoom(icsName string) (string, error) {
 func parseRooms(roomsContent string) []room {
 	strReader := strings.NewReader(roomsContent)
 	csvReader := csv.NewReader(strReader)
-	csvReader.Comma = ';'
+	csvReader.Comma = csvComma
 	records, err := csvReader.ReadAll()
 	if err != nil {
 		panic(fmt.Errorf("Failed to parse roomsContent csv: %w", err))
