@@ -3,7 +3,6 @@ package tiss
 import (
 	_ "embed"
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
