@@ -19,6 +19,7 @@ type Style struct {
 	WithSelectedText lipgloss.Style
 	WithBorder       lipgloss.Style
 	WithLink         lipgloss.Style
+	WithInvalidLink	 lipgloss.Style
 	WithSummary      lipgloss.Style
 }
 
@@ -44,6 +45,10 @@ func Get() Style {
 				Inherit(style.Base).
 				Foreground(lipgloss.Color(conf.Style.Normal.Link)),
 
+			WithInvalidLink: lipgloss.NewStyle().
+				Inherit(style.Base).
+				Foreground(lipgloss.Color(conf.Style.Normal.Dimmed)),
+
 			WithSummary: lipgloss.NewStyle().
 				Inherit(style.Base).
 				Bold(true),
@@ -61,3 +66,4 @@ func TerminalSize() (int, int) {
 
 	return width, height
 }
+

@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/icali-app/icali-tui/internal/components/grid"
+	"github.com/icali-app/icali-tui/internal/ellipsis"
 	icshelper "github.com/icali-app/icali-tui/internal/ics-helper"
 	"github.com/icali-app/icali-tui/internal/style"
 	"github.com/icali-app/icali-tui/internal/tiss"
@@ -65,11 +66,11 @@ func formatDayOfMonthCell(cell grid.DayOfMonthCell) string {
 		summary = styl.WithSummary.Render(summary)
 
 		location := e.GetProperty(ics.ComponentPropertyLocation).Value
-		locationText := fmt.Sprintf("Location: %s", location)
+		locationText := fmt.Sprintf("Location: %s", ellipsis.WithEllipsis(location, 50))
 
 		locationLink, err := locationLink(location, e)
 		if err != nil {
-			location = styl.WithLink.Render(locationText)
+			location = styl.WithInvalidLink.Render(locationText)
 		} else {
 			locationFmt := formatHyperlink(locationLink, locationText)
 			location = styl.WithLink.Render(locationFmt)
@@ -133,7 +134,7 @@ func locationLink(str string, reference *ics.VEvent) (string, error) {
 	uid := reference.GetProperty(ics.ComponentPropertyUniqueId).Value
 	if strings.HasSuffix(uid, "tuwien.ac.at") {
 		location := reference.GetProperty(ics.ComponentPropertyLocation).Value
-		return tiss.SearchTISSRoom(location)
+		return tiss.GetTissRoom(location)
 	}
 
 	return "http://example.com", nil

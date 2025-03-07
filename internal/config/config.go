@@ -46,6 +46,7 @@ type styleBaseConfig struct {
 	Border     string `koanf:"border"`
 	Selection  string `koanf:"selection"`
 	Link       string `koanf:"link"`
+	Dimmed     string `koanf:"dimmed"`
 }
 
 type StyleConfig struct {
@@ -158,6 +159,7 @@ func styleConfigFromCat(cat Catppuccin) StyleConfig {
 		Border:     cat.Mauve,
 		Selection:  cat.Overlay2,
 		Link:       cat.Red,
+		Dimmed: 	cat.Subtext0,
 	}
 
 	success := styleBaseConfig{
@@ -167,6 +169,7 @@ func styleConfigFromCat(cat Catppuccin) StyleConfig {
 		Border:     cat.Green,
 		Selection:  cat.Overlay2,
 		Link:       cat.Red,
+		Dimmed: 	cat.Subtext0,
 	}
 
 	error := styleBaseConfig{
@@ -176,6 +179,7 @@ func styleConfigFromCat(cat Catppuccin) StyleConfig {
 		Border:     cat.Red,
 		Selection:  cat.Overlay2,
 		Link:       cat.Red,
+		Dimmed: 	cat.Subtext0,
 	}
 
 	info := styleBaseConfig{
@@ -185,13 +189,13 @@ func styleConfigFromCat(cat Catppuccin) StyleConfig {
 		Border:     cat.Sapphire,
 		Selection:  cat.Overlay2,
 		Link:       cat.Red,
+		Dimmed: 	cat.Subtext0,
 	}
 
-
 	return StyleConfig{
-		Normal: normal,
-		Error: error,
-		Info: info,
+		Normal:  normal,
+		Error:   error,
+		Info:    info,
 		Success: success,
 	}
 }
